@@ -1,0 +1,6 @@
+# ninja log v5
+13	453	7316100061100747	CMakeFiles/MyDataStructureAndAlgorithm.dir/Src/MyStack.cpp.obj	176847c859196a24
+2	538	7316102871652353	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
+606	733	7316102776635883	MyDataStructureAndAlgorithm.exe	5a42304d578c6279
+2	550	7316123679516525	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
+551	684	7316123680820154	MyDataStructureAndAlgorithm.exe	9f8f2ecb3e788a7c

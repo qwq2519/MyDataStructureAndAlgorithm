@@ -14,7 +14,7 @@ namespace MyStack {
     class FixedSizeStack {
     private:
 
-        uint32_t capacity;//表示栈的最大容量，即能容纳元素的最大数量。
+        const uint32_t capacity;//表示栈的最大容量，即能容纳元素的最大数量。
         uint32_t size;//表示当前栈中元素的数量。
         T *data;//一个动态分配的数组，用于存储栈中的元素。
 

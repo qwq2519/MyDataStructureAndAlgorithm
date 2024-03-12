@@ -24,13 +24,7 @@ namespace MyStack {
             return size;
         }
 
-        virtual void pop() final {
-            if (IsEmpty()) {
-                throw std::out_of_range("Stack is empty!");
-            } else {
-                --size;
-            }
-        }
+        virtual void pop() = 0;
 
         virtual const U &top() const = 0;
 
@@ -82,6 +76,14 @@ namespace MyStack {
                 throw std::runtime_error("Stack overflow: Cannot push onto a full stack.");
             } else {
                 data[AbstractStack<T>::size++] = value;
+            }
+        }
+
+        void pop() override {
+            if (AbstractStack<T>::IsEmpty()) {
+                throw std::out_of_range("Stack is empty!");
+            } else {
+                --AbstractStack<T>::size;
             }
         }
 

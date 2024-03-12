@@ -24,11 +24,11 @@ namespace MyStack {
             return size;
         }
 
-        virtual void pop() = 0;
+        virtual void Pop() = 0;
 
-        virtual const U &top() const = 0;
+        virtual const U &Top() const = 0;
 
-        virtual void push(const U &value) = 0;
+        virtual void Push(const U &value) = 0;
     };
 
     template<typename T>
@@ -59,11 +59,11 @@ namespace MyStack {
 
     public:
 
-        bool isFull() const {
+        bool IsFull() const {
             return AbstractStack<T>::size < capacity;
         }
 
-        const T &top() const override {
+        const T &Top() const override {
             if (AbstractStack<T>::IsEmpty()) {
                 throw std::out_of_range("Stack is empty!");
             } else {
@@ -71,15 +71,15 @@ namespace MyStack {
             }
         }
 
-        void push(const T &value) override {
-            if (!isFull()) {
+        void Push(const T &value) override {
+            if (!IsFull()) {
                 throw std::runtime_error("Stack overflow: Cannot push onto a full stack.");
             } else {
                 data[AbstractStack<T>::size++] = value;
             }
         }
 
-        void pop() override {
+        void Pop() override {
             if (AbstractStack<T>::IsEmpty()) {
                 throw std::out_of_range("Stack is empty!");
             } else {

@@ -4,7 +4,6 @@
 
 #include <stdexcept>
 #include <cstdint>
-#include<memory>
 
 namespace MyStack {
     //抽象基类，至少包含一个纯虚函数
@@ -17,11 +16,11 @@ namespace MyStack {
 
     public:
         //禁止派生类重写该函数
-        virtual bool IsEmpty() const final {
+        bool IsEmpty() const {
             return size == 0;
         };
 
-        virtual uint32_t Size() const final {
+        uint32_t Size() const {
             return size;
         }
 

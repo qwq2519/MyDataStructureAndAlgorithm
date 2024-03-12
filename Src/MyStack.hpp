@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <cstdint>
+#include<memory>
 
 namespace MyStack {
     //抽象基类，至少包含一个纯虚函数
@@ -35,9 +36,6 @@ namespace MyStack {
         virtual const U &top() const = 0;
 
         virtual void push(const U &value) = 0;
-
-        virtual void push(U &&value) = 0;
-
     };
 
     template<typename T>
@@ -88,14 +86,6 @@ namespace MyStack {
             }
         }
 
-        void push(T &&value) override {
-            if (!isFull()) {
-                throw std::runtime_error("Stack overflow: Cannot push onto a full stack.");
-            } else {
-                data[AbstractStack<T>::size++] = value;
-                value = NULL;
-            }
-        }
     };
 }// MyStack
 

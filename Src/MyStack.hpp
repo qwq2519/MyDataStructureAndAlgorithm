@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <cstdint>
+#include "MyLinkedList.hpp"
 
 namespace MyStack {
     //抽象基类，至少包含一个纯虚函数
@@ -41,7 +42,7 @@ namespace MyStack {
 
     public:
         //  根据传入的参数初始化栈，创建一个容量为capa的数组。
-        ArrayStack(uint32_t capa) : capacity{capa}, data{new T[capacity]} {};
+        ArrayStack(uint32_t capa) : capacity{capa}, data{new T[capacity]} {}
 
         // 在栈对象生命周期结束时调用，负责释放之前动态分配的数组内存。
         ~ArrayStack() {
@@ -50,6 +51,9 @@ namespace MyStack {
 
         /*
          * 防止拷贝构造和赋值操作发生，这是因为栈内部管理了动态内存，直接拷贝可能导致资源泄露或逻辑错误。
+         */
+        /*
+         * 引用乱了。。。研究下
          */
         ArrayStack(const ArrayStack &) = delete;
 
@@ -73,7 +77,7 @@ namespace MyStack {
 
         void Push(const T &value) override {
             if (!IsFull()) {
-                throw std::runtime_error("Stack overflow: Cannot push onto a full stack.");
+                throw std::runtime_error("Stack overflow: Cannot push into a full stack.");
             } else {
                 data[AbstractStack<T>::size++] = value;
             }
@@ -88,6 +92,44 @@ namespace MyStack {
         }
 
     };
+
+    template<typename T>
+    class LinkedStack : public AbstractStack<T> {
+    private:
+        MyLinkedList::DoubleLinkedList<T> data;
+    public:
+        void Push(const T &value) override;
+
+
+        void Pop() override;
+
+        const T &Top() const override;
+    };
 }// MyStack
+
+namespace MyStack {
+    template<typename T>
+    void LinkedStack<T>::Push(const T &value) {
+        data.InsertLast(value);
+        ++AbstractStack<T>::size;
+
+    }
+
+    template<typename T>
+    void LinkedStack<T>::Pop() {
+        if (data.Size()) {
+            throw std::out_of_range("Stack is empty!");
+        } else {
+            data.RemoveLast();
+            --AbstractStack<T>::size;
+        }
+    }
+
+    template<typename T>
+    const T& LinkedStack<T>::Top() const {
+        return data.GetTail();
+
+    }
+}
 
 #endif

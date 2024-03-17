@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 #include <cstdint>
-
+#include "MyLinkedList.hpp"
 
 namespace MyQueue {
     template<typename U>
@@ -91,7 +91,40 @@ namespace MyQueue {
 
     };
 
+    template<typename T>
+    class LinkedQueue final : public AbstractQueue<T> {
+    private:
+        MyLinkedList::DoubleLinkedList<T> data;
+    public:
+        void Pop() override;
 
+        void Push(const T &) override;
+
+        const T &Front() const override;
+    };
+}
+
+namespace MyQueue {
+    template<typename T>
+    void LinkedQueue<T>::Pop() {
+        if (AbstractQueue<T>::IsEmpty()) {
+            throw std::out_of_range("Queue is empty!");
+        } else {
+            --AbstractQueue<T>::size;
+            data.RemoveFront();
+        }
+    }
+
+    template<typename T>
+    void LinkedQueue<T>::Push(const T &value) {
+        ++AbstractQueue<T>::size;
+        data.InsertLast(value);
+    }
+
+    template<typename T>
+    const T & LinkedQueue<T>::Front() const{
+        return data.GetHead();
+    }
 }
 
 

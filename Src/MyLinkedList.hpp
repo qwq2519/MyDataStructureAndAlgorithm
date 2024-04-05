@@ -13,7 +13,7 @@
 namespace MyLinkedList {
     template<typename T>
     class DoubleLinkedList {
-    private:
+    public:
         using Pointer = MyNode::MyNode<T> *;
         Pointer sentinel;//哨兵节点
         int64_t size;
@@ -37,11 +37,17 @@ namespace MyLinkedList {
 
         const T &GetHead() const;
 
+
         const T &GetTail() const;
 
         const T &GetValue(int64_t index) const;
-
         void ForwardIteration() const;
+
+        void IntervalReverse(int64_t begin,int64_t end);
+
+        void AllReverse();
+
+        void SortByBinaryLifting();
 
     public:
         bool IsEmpty() const;
@@ -55,7 +61,8 @@ namespace MyLinkedList {
         const T &GetData(int64_t index) const;
 
     };
-
+}
+namespace MyLinkedList {
     template<typename T>
     DoubleLinkedList<T>::DoubleLinkedList() {
         sentinel = new MyNode::MyNode<T>({}, nullptr, nullptr);
@@ -63,14 +70,15 @@ namespace MyLinkedList {
         sentinel->prev = sentinel;
         size = 0;
     }
+
     template<typename T>
     DoubleLinkedList<T>::~DoubleLinkedList() {
-       Pointer pNode=sentinel->next;
-       while(pNode!=sentinel){
-           Pointer temp=pNode->next;
-           delete pNode;
-           pNode=temp;
-       }
+        Pointer pNode = sentinel->next;
+        while (pNode != sentinel) {
+            Pointer temp = pNode->next;
+            delete pNode;
+            pNode = temp;
+        }
         delete sentinel;
     }
 
@@ -130,6 +138,7 @@ namespace MyLinkedList {
         Pointer pNode = Get(index);
         if (pNode == nullptr) {
             std::cerr << "this is a nullptr" << '\n';
+            return ;
         }
 
         Pointer newNode = new MyNode::MyNode<T>(value, pNode->prev, pNode);
@@ -200,8 +209,37 @@ namespace MyLinkedList {
     template<typename T>
     void DoubleLinkedList<T>::ForwardIteration() const {
         for (auto it = sentinel->next; it != sentinel; it = it->next) {
-            std::cout << (it->data) << " -> " << ' ';
+            std::cout << (it->data)<<"("<<it<<") " ;
+            if(it->next!=sentinel)
+            std::cout<< " -> \n" << ' ';
         }
+    }
+
+
+    template<typename T>
+    void DoubleLinkedList<T>::IntervalReverse(int64_t begin, int64_t end) {
+        Pointer pNode=Get(begin);
+        Pointer eNode=Get(end);
+
+        Pointer PrevpNode=pNode->prev;//区间的前继
+        Pointer NexteNode=eNode->next;//区间的后继
+        pNode->prev= nullptr;
+        eNode->next= nullptr;
+        for(auto it=pNode;it!= nullptr;){
+            auto temp=it->next;
+            it->next=it->prev;
+            it->prev=temp;
+            it=temp;
+        }
+        PrevpNode->next=eNode;
+        NexteNode->prev=pNode;
+        eNode->prev=PrevpNode;
+        pNode->next=NexteNode;
+    }
+
+    template<typename T>
+    void DoubleLinkedList<T>::AllReverse() {
+        IntervalReverse(0,Size()-1);
     }
 
 

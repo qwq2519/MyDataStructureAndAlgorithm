@@ -7,6 +7,7 @@
 
 #include "MyNode.h"
 #include<cstdint>
+#include<vector>
 #include <iostream>
 
 
@@ -23,6 +24,7 @@ namespace MyLinkedList {
         ~DoubleLinkedList();
 
     public:
+        void clear();
         void Insert(int64_t index, T value);
 
         void InsertFront(T value);
@@ -35,18 +37,20 @@ namespace MyLinkedList {
 
         void RemoveLast();
 
-        const T &GetHead() const;
+        const T GetHead() const;
 
 
-        const T &GetTail() const;
+        const T GetTail() const;
 
-        const T &GetValue(int64_t index) const;
+        const T GetValue(int64_t index) const;
 
         void ForwardIteration() const;
 
         void IntervalReverse(int64_t begin, int64_t end);
 
         void AllReverse();
+
+        void Unique();//去重，需要排序后使用
 
         static DoubleLinkedList<T> MergeOutPlace(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b);
 
@@ -58,13 +62,16 @@ namespace MyLinkedList {
         int64_t Size() const;
 
     private:
-        Pointer Get(int64_t index);
+        Pointer Get(int64_t index) const;
 
     public:
-        const T &GetData(int64_t index) const;
-    public:
+        DoubleLinkedList<T>& operator =(const DoubleLinkedList<T>& rhs);
+
         template<typename U>
         friend std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<U> a);
+
+        friend DoubleLinkedList<T> operator+(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b);
+        friend DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b);
     };
 }
 namespace MyLinkedList {
@@ -96,6 +103,21 @@ namespace MyLinkedList {
     bool DoubleLinkedList<T>::IsEmpty() const { return size == 0; }
 
     template<typename T>
+    void DoubleLinkedList<T>::clear() {
+        Pointer pNode = sentinel->next;
+        while (pNode != sentinel) {
+            Pointer temp = pNode->next;
+            delete pNode;
+            pNode = temp;
+        }
+        delete sentinel;
+        sentinel = new MyNode::MyNode<T>({}, nullptr, nullptr);
+        sentinel->next = sentinel;
+        sentinel->prev = sentinel;
+        size = 0;
+    }
+
+    template<typename T>
     void DoubleLinkedList<T>::InsertFront(T value) {
         Pointer newNode = new MyNode::MyNode<T>(value, sentinel, sentinel->next);
         sentinel->next->prev = newNode;
@@ -113,7 +135,7 @@ namespace MyLinkedList {
     }
 
     template<typename T>
-    DoubleLinkedList<T>::Pointer DoubleLinkedList<T>::Get(int64_t index) {
+    DoubleLinkedList<T>::Pointer DoubleLinkedList<T>::Get(int64_t index) const{
         if (index >= size) {
             return nullptr;
         }
@@ -197,17 +219,17 @@ namespace MyLinkedList {
     }
 
     template<typename T>
-    const T &DoubleLinkedList<T>::GetHead() const {
+    const T DoubleLinkedList<T>::GetHead() const {
         return sentinel->next->data;
     }
 
     template<typename T>
-    const T &DoubleLinkedList<T>::GetTail() const {
+    const T DoubleLinkedList<T>::GetTail() const {
         return sentinel->prev->data;
     }
 
     template<typename T>
-    const T &DoubleLinkedList<T>::GetValue(int64_t index) const {
+    const T DoubleLinkedList<T>::GetValue(int64_t index) const {
         return Get(index)->data;
     }
 
@@ -247,6 +269,26 @@ namespace MyLinkedList {
         IntervalReverse(0, Size() - 1);
     }
 
+    template<typename T>
+    void DoubleLinkedList<T>::Unique() {
+        std::vector<int> a;
+        int total=0;
+        int index;
+        Pointer t=sentinel->next->next;
+        index=1;
+        while(t!=sentinel){
+            if(t->prev->data==t->data){
+             ++total;
+             a.push_back(index);
+            }
+            ++index;
+            t=t->next;
+        }
+        for(auto ele:a){
+            Remove(ele-total);
+            ++total;
+        }
+    }
 
     template<typename T>
     DoubleLinkedList<T>
@@ -317,7 +359,14 @@ namespace MyLinkedList {
         a.ForwardIteration();
         return os;
      }
+    template<typename T>
+    DoubleLinkedList<T> operator+(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b){
 
+    }
+    template<typename T>
+    DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b){
+
+    }
 }
 
 

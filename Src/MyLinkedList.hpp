@@ -41,11 +41,14 @@ namespace MyLinkedList {
         const T &GetTail() const;
 
         const T &GetValue(int64_t index) const;
+
         void ForwardIteration() const;
 
-        void IntervalReverse(int64_t begin,int64_t end);
+        void IntervalReverse(int64_t begin, int64_t end);
 
         void AllReverse();
+
+        static DoubleLinkedList<T> MergeOutPlace(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b);
 
         void SortByBinaryLifting();
 
@@ -59,7 +62,9 @@ namespace MyLinkedList {
 
     public:
         const T &GetData(int64_t index) const;
-
+    public:
+        template<typename U>
+        friend std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<U> a);
     };
 }
 namespace MyLinkedList {
@@ -138,7 +143,7 @@ namespace MyLinkedList {
         Pointer pNode = Get(index);
         if (pNode == nullptr) {
             std::cerr << "this is a nullptr" << '\n';
-            return ;
+            return;
         }
 
         Pointer newNode = new MyNode::MyNode<T>(value, pNode->prev, pNode);
@@ -209,41 +214,114 @@ namespace MyLinkedList {
     template<typename T>
     void DoubleLinkedList<T>::ForwardIteration() const {
         for (auto it = sentinel->next; it != sentinel; it = it->next) {
-            std::cout << (it->data)<<"("<<it<<") " ;
-            if(it->next!=sentinel)
-            std::cout<< " -> \n" << ' ';
+            std::cout << (it->data) ;
+            if (it->next != sentinel)
+                std::cout << " -> " << ' ';
         }
     }
 
 
     template<typename T>
     void DoubleLinkedList<T>::IntervalReverse(int64_t begin, int64_t end) {
-        Pointer pNode=Get(begin);
-        Pointer eNode=Get(end);
+        Pointer pNode = Get(begin);
+        Pointer eNode = Get(end);
 
-        Pointer PrevpNode=pNode->prev;//区间的前继
-        Pointer NexteNode=eNode->next;//区间的后继
-        pNode->prev= nullptr;
-        eNode->next= nullptr;
-        for(auto it=pNode;it!= nullptr;){
-            auto temp=it->next;
-            it->next=it->prev;
-            it->prev=temp;
-            it=temp;
+        Pointer PrevpNode = pNode->prev;//区间的前继
+        Pointer NexteNode = eNode->next;//区间的后继
+        pNode->prev = nullptr;
+        eNode->next = nullptr;
+        for (auto it = pNode; it != nullptr;) {
+            auto temp = it->next;
+            it->next = it->prev;
+            it->prev = temp;
+            it = temp;
         }
-        PrevpNode->next=eNode;
-        NexteNode->prev=pNode;
-        eNode->prev=PrevpNode;
-        pNode->next=NexteNode;
+        PrevpNode->next = eNode;
+        NexteNode->prev = pNode;
+        eNode->prev = PrevpNode;
+        pNode->next = NexteNode;
     }
 
     template<typename T>
     void DoubleLinkedList<T>::AllReverse() {
-        IntervalReverse(0,Size()-1);
+        IntervalReverse(0, Size() - 1);
     }
 
 
+    template<typename T>
+    DoubleLinkedList<T>
+    DoubleLinkedList<T>::MergeOutPlace(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b) {
+        DoubleLinkedList<T> c;
+        Pointer tempa{a.sentinel->next};
+        Pointer tempb{b.sentinel->next};
+
+        while (tempa != a.sentinel && tempb != b.sentinel) {
+            if (tempa->data <= tempb->data) {
+                c.InsertLast(tempa->data);
+                tempa  = tempa->next;
+            } else {
+                c.InsertLast(tempb->data);
+                tempb = tempb->next;
+            }
+          //  std::cout<<"fuck";
+
+        }
+        while (tempa != a.sentinel) {
+            c.InsertLast(tempa->data);
+            tempa = tempa->next;
+           // std::cout<<"fuck22";
+
+        }
+        while (tempb != b.sentinel) {
+            //std::cout<<tempb->data<<'\n';
+           // system("pause");
+            c.InsertLast(tempb->data);
+            tempb = tempb->next;
+        }
+        return c;
+    }
+    template<typename T>
+    void DoubleLinkedList<T>::SortByBinaryLifting() {
+        Pointer head=sentinel->next;
+//
+//        sentinel->next->prev= nullptr;
+//        sentinel->prev->next= nullptr;//变成一条链
+        for(int subLength(1);subLength<size;subLength<<=1) {
+            for (int H(0);H<size-subLength ;H += subLength*2) {//注意边界，容易记错
+                DoubleLinkedList<T> sublsP, sublsN;//一前一后的两条子链
+                Pointer Beg(Get(H));
+                Pointer p = Beg;
+                for (int i = subLength; i; --i) {
+                    sublsP.InsertLast(p->data);
+                    p = p->next;
+                }
+                for (int i = subLength; i && p != sentinel; --i) {
+                    sublsN.InsertLast(p->data);
+                    p = p->next;
+                }
+              //  std::cout << sublsP << '\n';
+               // std::cout << sublsN << '\n';
+                auto temp = MyLinkedList::DoubleLinkedList<int>::MergeOutPlace(sublsP, sublsN);
+                Pointer TP = temp.sentinel->next;
+                p = Beg;
+                while (TP != temp.sentinel) {
+                    p->data = TP->data;
+                    p = p->next;
+                    TP = TP->next;
+                }
+            }
+        }
+    }
+    template<typename T>
+     std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<T> a){
+        a.ForwardIteration();
+        return os;
+     }
+
 }
+
+
+
 
 
 #endif //MYDATASTRUCTUREANDALGORITHM_MYLINKEDLIST_HPP

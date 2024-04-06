@@ -65,10 +65,10 @@ namespace MyLinkedList {
         Pointer Get(int64_t index) const;
 
     public:
-        DoubleLinkedList<T>& operator =(const DoubleLinkedList<T>& rhs);
+        DoubleLinkedList<T> operator =(const DoubleLinkedList<T>& rhs);
 
         template<typename U>
-        friend std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<U> a);
+        friend std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<U> &a) ;
 
         friend DoubleLinkedList<T> operator+(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b);
         friend DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b);
@@ -207,19 +207,26 @@ namespace MyLinkedList {
             return;
         } else if (index == size - 1) {
             RemoveLast();
+            return ;
         } else if (index >= size) {
             return;
         }
-
+        if(index<0){
+            std::cerr<<"Index is a negative number, what are you doing ?";
+            return ;
+        }
         Pointer pNode = Get(index);
+
         pNode->prev->next = pNode->next;
         pNode->next->prev = pNode->prev;
         delete pNode;
-        --size;
+        return ;
     }
 
     template<typename T>
     const T DoubleLinkedList<T>::GetHead() const {
+//        std::cout<<sentinel->next<<' '<<sentinel->next->data<<'\n';
+//        std::cout<<sentinel->next->next<<' '<<sentinel->next->next->data<<'\n';
         return sentinel->next->data;
     }
 
@@ -236,7 +243,7 @@ namespace MyLinkedList {
     template<typename T>
     void DoubleLinkedList<T>::ForwardIteration() const {
         for (auto it = sentinel->next; it != sentinel; it = it->next) {
-            std::cout << (it->data) ;
+            std::cout << (it->data) <<'('<<it<<')';
             if (it->next != sentinel)
                 std::cout << " -> " << ' ';
         }
@@ -278,13 +285,14 @@ namespace MyLinkedList {
         index=1;
         while(t!=sentinel){
             if(t->prev->data==t->data){
-             ++total;
              a.push_back(index);
             }
             ++index;
             t=t->next;
         }
+
         for(auto ele:a){
+//            std::cout<<ele<<' '<<total<<'\n';
             Remove(ele-total);
             ++total;
         }
@@ -355,7 +363,7 @@ namespace MyLinkedList {
         }
     }
     template<typename T>
-     std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<T> a){
+     std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<T> &a) {//第二个参数要加引用，不然多了个副本，还析构什么的，太特么蛋疼了
         a.ForwardIteration();
         return os;
      }

@@ -65,7 +65,7 @@ namespace MyLinkedList {
     private:
         Pointer Get(int64_t index) const;
 
-        void Remove(Pointer p);
+        Pointer Remove(Pointer p);
 
     public:
         void print() const;
@@ -80,7 +80,10 @@ namespace MyLinkedList {
         friend DoubleLinkedList<U> operator+(const DoubleLinkedList<U> &a, const DoubleLinkedList<U> &b);//求并集
 
         template<typename U>
-        friend DoubleLinkedList<U> operator-(const DoubleLinkedList<U> &a, const DoubleLinkedList<U> &b);//求差集
+        friend DoubleLinkedList<U> operator-(const DoubleLinkedList<U> &a, const DoubleLinkedList<U> &b);//求对称差集
+
+        template<typename U>
+        friend DoubleLinkedList<U> operator*(const DoubleLinkedList<U> &a, const DoubleLinkedList<U> &b);//求交集
     };
 }
 namespace MyLinkedList {
@@ -236,11 +239,13 @@ namespace MyLinkedList {
     }
 
     template<typename T>
-    void DoubleLinkedList<T>::Remove(typename DoubleLinkedList<T>::Pointer p) {
+    typename DoubleLinkedList<T>::Pointer DoubleLinkedList<T>::Remove(typename DoubleLinkedList<T>::Pointer p) {
         p->prev->next = p->next;
         p->next->prev = p->prev;
+        Pointer N = p->next;
         delete p;
         --size;
+        return N;
     }
 
     template<typename T>
@@ -306,31 +311,16 @@ namespace MyLinkedList {
 
     template<typename T>
     void DoubleLinkedList<T>::Unique() {
-        std::vector<int> a;
-        int total = 0;
-        int index;
-        Pointer t = sentinel->next->next;
-        index = 1;
+        Pointer t = sentinel->next;
         while (t != sentinel) {
-            if (t->prev->data == t->data) {
-                a.push_back(index);
+            if (t != sentinel->prev && t->data == t->next->data) {
+                T value = t->data;
+                while (t != sentinel->prev && t->data == value && t->next->data == value) {
+                    t = Remove(t);
+                }
             }
-            ++index;
             t = t->next;
         }
-//        puts("");
-//        for(auto i:a){
-//            std::cout<<i<<' ';
-//        }
-//        puts("\n\n\n\n\n\n");
-//        this->print();
-        for (auto ele: a) {
-//            std::cout<<ele-total<<'\n';
-            Remove(ele - total);
-            ++total;
-//            print();std::cout<<'\n';
-        }
-//        puts("\n\n\n\n\n\n\n\n\n");
     }
 
     template<typename T>
@@ -381,8 +371,8 @@ namespace MyLinkedList {
 //
 //        sentinel->next->prev= nullptr;
 //        sentinel->prev->next= nullptr;//变成一条链
-        for(int subLength(1);subLength<size;subLength<<=1) {
-            for (int H(0);H<size-subLength ;H += subLength*2) {//注意边界，容易记错
+        for (int subLength(1); subLength < size; subLength <<= 1) {
+            for (int H(0); H < size - subLength; H += subLength * 2) {//注意边界，容易记错
                 DoubleLinkedList<T> sublsP, sublsN;//一前一后的两条子链
                 Pointer Beg(Get(H));
                 Pointer p = Beg;
@@ -394,8 +384,8 @@ namespace MyLinkedList {
                     sublsN.InsertLast(p->data);
                     p = p->next;
                 }
-              //  std::cout << sublsP << '\n';
-               // std::cout << sublsN << '\n';
+                //  std::cout << sublsP << '\n';
+                // std::cout << sublsN << '\n';
                 auto temp = MyLinkedList::DoubleLinkedList<int>::MergeOutPlace(sublsP, sublsN);
                 Pointer TP = temp.sentinel->next;
                 p = Beg;
@@ -407,7 +397,6 @@ namespace MyLinkedList {
             }
         }
     }
-
 
 
     template<typename T>
@@ -457,21 +446,51 @@ namespace MyLinkedList {
 
     template<typename T>
     DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b) {
-        DoubleLinkedList<T> tempa,tempb,ans,temp;
-        tempa=a;tempb=b;
+        DoubleLinkedList<T> tempa, tempb, ans, temp;
+        tempa = a;
+        tempb = b;
         tempa.SortByBinaryLifting();
         tempb.SortByBinaryLifting();
         tempa.Unique();
-        tempb.Unique();
-        temp= MyLinkedList::DoubleLinkedList<int>::MergeOutPlace(tempa, tempb);
+        tempb.Unique();//将a,b变成一个集合，且是有序集合,保证一个元素在temp最多出现两次
+        temp = MyLinkedList::DoubleLinkedList<int>::MergeOutPlace(tempa, tempb);
 
-        typename DoubleLinkedList<T>::Pointer p=temp.sentinel->next->next;
-        while(p!=temp.sentinel){
-            if(p->data=p->prev->data){
-                T value=p->prev->data;
-                while(p->data==value){
+        typename DoubleLinkedList<T>::Pointer p = temp.sentinel->next;
+        while (p != temp.sentinel) {
+            if (p->next != temp.sentinel && p->data == p->next->data) {
+                typename DoubleLinkedList<T>::Pointer awd = p->next->next;
+                temp.Remove(p->next);
+                temp.Remove(p);
+                p = awd;
+            } else {
+                p = p->next;
+            }
+        }
+        return temp;
+    }
 
-                }
+    template<typename T>
+    DoubleLinkedList<T> operator*(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b) {
+        DoubleLinkedList<T> tempa, tempb, ans;
+        tempa = a;
+        tempb = b;
+        tempa.SortByBinaryLifting();
+        tempb.SortByBinaryLifting();
+        tempa.Unique();
+        tempb.Unique();//将a,b变成一个集合，且是有序集合,保证一个元素在temp最多出现两次
+
+
+        typename DoubleLinkedList<T>::Pointer pA = tempa.sentinel->next;
+        typename DoubleLinkedList<T>::Pointer pB = tempb.sentinel->next;
+        while (pA != tempa.sentinel && pB != tempb.sentinel) {
+            if (pA->data == pB->data) {
+                ans.InsertLast(pA->data);
+                pA = pA->next;
+                pB = pB->next;
+            } else if (pA->data < pB->data) {
+                pA = pA->next;
+            } else {
+                pB = pB->next;
             }
         }
         return ans;

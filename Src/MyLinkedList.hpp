@@ -8,6 +8,7 @@
 #include "MyNode.h"
 #include<cstdint>
 #include<vector>
+#include<set>
 #include <iostream>
 
 
@@ -25,6 +26,7 @@ namespace MyLinkedList {
 
     public:
         void clear();
+
         void Insert(int64_t index, T value);
 
         void InsertFront(T value);
@@ -38,7 +40,6 @@ namespace MyLinkedList {
         void RemoveLast();
 
         const T GetHead() const;
-
 
         const T GetTail() const;
 
@@ -65,13 +66,19 @@ namespace MyLinkedList {
         Pointer Get(int64_t index) const;
 
     public:
-        DoubleLinkedList<T> operator =(const DoubleLinkedList<T>& rhs);
+        void print() const;
+
+    public:
+        DoubleLinkedList<T> &operator=(const DoubleLinkedList<T> &rhs);
 
         template<typename U>
-        friend std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<U> &a) ;
+        friend std::ostream &operator<<(std::ostream &os, const DoubleLinkedList<U> &a);
 
-        friend DoubleLinkedList<T> operator+(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b);
-        friend DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b);
+        template<typename U>
+        friend DoubleLinkedList<U> operator+(const DoubleLinkedList<U> &a, const DoubleLinkedList<U> &b);//求并集
+
+        template<typename U>
+        friend DoubleLinkedList<U> operator-(const DoubleLinkedList<U> &a, const DoubleLinkedList<U> &b);//求差集
     };
 }
 namespace MyLinkedList {
@@ -85,6 +92,7 @@ namespace MyLinkedList {
 
     template<typename T>
     DoubleLinkedList<T>::~DoubleLinkedList() {
+//        std::cerr << '\n' << "析构函数被调用" << '\n';
         Pointer pNode = sentinel->next;
         while (pNode != sentinel) {
             Pointer temp = pNode->next;
@@ -135,7 +143,7 @@ namespace MyLinkedList {
     }
 
     template<typename T>
-    DoubleLinkedList<T>::Pointer DoubleLinkedList<T>::Get(int64_t index) const{
+    DoubleLinkedList<T>::Pointer DoubleLinkedList<T>::Get(int64_t index) const {
         if (index >= size) {
             return nullptr;
         }
@@ -202,25 +210,27 @@ namespace MyLinkedList {
 
     template<typename T>
     void DoubleLinkedList<T>::Remove(int64_t index) {
+//        std::cout<<'\n'<<index<<'\n';
         if (index == 0) {
             RemoveFront();
             return;
         } else if (index == size - 1) {
             RemoveLast();
-            return ;
+            return;
         } else if (index >= size) {
             return;
         }
-        if(index<0){
-            std::cerr<<"Index is a negative number, what are you doing ?";
-            return ;
+        if (index < 0) {
+            std::cerr << "Index is a negative number, what are you doing ?";
+            return;
         }
         Pointer pNode = Get(index);
 
         pNode->prev->next = pNode->next;
         pNode->next->prev = pNode->prev;
         delete pNode;
-        return ;
+        --size;
+        return;
     }
 
     template<typename T>
@@ -243,12 +253,20 @@ namespace MyLinkedList {
     template<typename T>
     void DoubleLinkedList<T>::ForwardIteration() const {
         for (auto it = sentinel->next; it != sentinel; it = it->next) {
-            std::cout << (it->data) <<'('<<it<<')';
+            std::cout << (it->data);// <<'('<<it<<')';
             if (it->next != sentinel)
-                std::cout << " -> " << ' ';
+                std::cout << ' ';
         }
     }
 
+    template<typename T>
+    void DoubleLinkedList<T>::print() const {
+        for (auto it = sentinel->next; it != sentinel; it = it->next) {
+            std::cout << (it->data);// <<'('<<it<<')';
+            if (it->next != sentinel)
+                std::cout << ' ';
+        }
+    }
 
     template<typename T>
     void DoubleLinkedList<T>::IntervalReverse(int64_t begin, int64_t end) {
@@ -279,23 +297,30 @@ namespace MyLinkedList {
     template<typename T>
     void DoubleLinkedList<T>::Unique() {
         std::vector<int> a;
-        int total=0;
+        int total = 0;
         int index;
-        Pointer t=sentinel->next->next;
-        index=1;
-        while(t!=sentinel){
-            if(t->prev->data==t->data){
-             a.push_back(index);
+        Pointer t = sentinel->next->next;
+        index = 1;
+        while (t != sentinel) {
+            if (t->prev->data == t->data) {
+                a.push_back(index);
             }
             ++index;
-            t=t->next;
+            t = t->next;
         }
-
-        for(auto ele:a){
-//            std::cout<<ele<<' '<<total<<'\n';
-            Remove(ele-total);
+//        puts("");
+//        for(auto i:a){
+//            std::cout<<i<<' ';
+//        }
+//        puts("\n\n\n\n\n\n");
+//        this->print();
+        for (auto ele: a) {
+//            std::cout<<ele-total<<'\n';
+            Remove(ele - total);
             ++total;
+//            print();std::cout<<'\n';
         }
+//        puts("\n\n\n\n\n\n\n\n\n");
     }
 
     template<typename T>
@@ -308,31 +333,41 @@ namespace MyLinkedList {
         while (tempa != a.sentinel && tempb != b.sentinel) {
             if (tempa->data <= tempb->data) {
                 c.InsertLast(tempa->data);
-                tempa  = tempa->next;
+                tempa = tempa->next;
             } else {
                 c.InsertLast(tempb->data);
                 tempb = tempb->next;
             }
-          //  std::cout<<"fuck";
+            //  std::cout<<"fuck";
 
         }
         while (tempa != a.sentinel) {
             c.InsertLast(tempa->data);
             tempa = tempa->next;
-           // std::cout<<"fuck22";
+            // std::cout<<"fuck22";
 
         }
         while (tempb != b.sentinel) {
             //std::cout<<tempb->data<<'\n';
-           // system("pause");
+            // system("pause");
             c.InsertLast(tempb->data);
             tempb = tempb->next;
         }
         return c;
     }
+
     template<typename T>
     void DoubleLinkedList<T>::SortByBinaryLifting() {
-        Pointer head=sentinel->next;
+//        Pointer head = sentinel->next;
+//        std::multiset<T> s;
+//        for (auto &it{head}; it != sentinel; it = it->next) {
+//            s.insert(it->data);
+//        }
+//        this->clear();
+//        for (const auto &it: s) {
+//            this->InsertLast(it);
+//        }
+
 //
 //        sentinel->next->prev= nullptr;
 //        sentinel->prev->next= nullptr;//变成一条链
@@ -362,23 +397,76 @@ namespace MyLinkedList {
             }
         }
     }
-    template<typename T>
-     std::ostream& operator<<(std::ostream& os,const DoubleLinkedList<T> &a) {//第二个参数要加引用，不然多了个副本，还析构什么的，太特么蛋疼了
-        a.ForwardIteration();
-        return os;
-     }
-    template<typename T>
-    DoubleLinkedList<T> operator+(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b){
 
+
+
+    template<typename T>
+    DoubleLinkedList<T> &DoubleLinkedList<T>::operator=(const DoubleLinkedList<T> &rhs) {
+        if (this->sentinel != rhs.sentinel) {
+            clear();
+            Pointer p = rhs.sentinel->next;
+            while (p != rhs.sentinel) {
+//            std::cout<<p<<'\n';
+                this->InsertLast(p->data);
+                p = p->next;
+            }
+        }
+        return *this;
     }
-    template<typename T>
-    DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a,const DoubleLinkedList<T> &b){
 
+    //调用正向迭代函数会段错误什么的，等待修复bug
+    template<typename T>
+    std::ostream &operator<<(std::ostream &os, const DoubleLinkedList<T> &a) {//第二个参数要加引用，不然多了个副本，还析构什么的，太特么蛋疼了
+        for (auto &it = a.sentinel->next; it != a.sentinel; it = it->next) {
+            os << (it->data);
+            if (it->next != a.sentinel) {
+                os << ' ';
+            }
+        }
+        os << std::endl;
+        return os;
+    }
+
+    template<typename T>
+    DoubleLinkedList<T> operator+(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b) {
+        DoubleLinkedList<T> c;// c=a 的话调用的是拷贝构造函数而不是赋值运算符
+        //sb c都析构了，还往外return
+        //返回什么引用啊
+        c = a;
+
+        typename DoubleLinkedList<T>::Pointer p = b.sentinel->next;
+        while (p != b.sentinel) {
+            c.InsertLast(p->data);
+            p = p->next;
+        }
+//        c.print();std::cout<<'\n';
+        c.SortByBinaryLifting();
+        c.Unique();
+        return c;
+    }
+
+    template<typename T>
+    DoubleLinkedList<T> operator-(const DoubleLinkedList<T> &a, const DoubleLinkedList<T> &b) {
+        DoubleLinkedList<T> tempa,tempb,ans,temp;
+        tempa=a;tempb=b;
+        tempa.SortByBinaryLifting();
+        tempb.SortByBinaryLifting();
+        tempa.Unique();
+        tempb.Unique();
+        temp= MyLinkedList::DoubleLinkedList<int>::MergeOutPlace(tempa, tempb);
+
+        typename DoubleLinkedList<T>::Pointer p=temp.sentinel->next->next;
+        while(p!=temp.sentinel){
+            if(p->data=p->prev->data){
+                T value=p->prev->data;
+                while(p->data==value){
+
+                }
+            }
+        }
+        return ans;
     }
 }
-
-
-
 
 
 #endif //MYDATASTRUCTUREANDALGORITHM_MYLINKEDLIST_HPP

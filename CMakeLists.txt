@@ -7,9 +7,13 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(${CMAKE_SOURCE_DIR}/Src)
 
 
+
+
 # 添加源文件
-
 add_executable(MyDataStructureAndAlgorithm
-        TestDemo/MyStackTest.cpp
+        #TestDemo/MyStackTest.cpp
+        #TestDemo/MyQueueTest.cpp
+        #TestDemo/MyLinkedListTest.cpp
+        TestDemo/MyVectorTest.cpp
+        #TestDemo/MyLinkedListTest.cpp
 )
-

@@ -15,7 +15,7 @@ namespace MyNode {
     template<typename T>
     struct MyNode {
         friend MyLinkedList::DoubleLinkedList<T>;
-    private:
+    public:
         T data;
         MyNode<T> *prev = nullptr;
         MyNode<T> *next = nullptr;

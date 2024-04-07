@@ -1,14 +1,5 @@
 # ninja log v5
-13	453	7316100061100747	CMakeFiles/MyDataStructureAndAlgorithm.dir/Src/MyStack.cpp.obj	176847c859196a24
-2	538	7316102871652353	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
-606	733	7316102776635883	MyDataStructureAndAlgorithm.exe	5a42304d578c6279
-2	550	7316123679516525	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
-551	684	7316123680820154	MyDataStructureAndAlgorithm.exe	9f8f2ecb3e788a7c
-2	1107	7319180047806940	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
-1108	2349	7319180060193478	MyDataStructureAndAlgorithm.exe	9f8f2ecb3e788a7c
-2	471	7319180223606777	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
-471	608	7319180224950988	MyDataStructureAndAlgorithm.exe	9f8f2ecb3e788a7c
-3	480	7319283028946092	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
-480	628	7319283030398909	MyDataStructureAndAlgorithm.exe	9f8f2ecb3e788a7c
-2	474	7319283310237205	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj	60a0cb22e34730c2
-475	611	7319283311567127	MyDataStructureAndAlgorithm.exe	9f8f2ecb3e788a7c
+1768	1895	7341814693391620	MyDataStructureAndAlgorithm.exe	e25355a9ee0169bb
+3	1908	7332331773429210	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyQueueTest.cpp.obj	561efbc027fd5e6e
+0	133	7341941441541263	build.ninja	1385fe01cc2fe5f8
+3	1767	7341814692140585	CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyLinkedListTest.cpp.obj	cc2efb05d9198a67

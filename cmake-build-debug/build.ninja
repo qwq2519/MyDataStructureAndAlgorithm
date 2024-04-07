@@ -49,8 +49,8 @@ cmake_ninja_workdir = D$:/MyDataStructureAndAlgorithm/cmake-build-debug/
 
 build cmake_object_order_depends_target_MyDataStructureAndAlgorithm: phony || CMakeFiles/MyDataStructureAndAlgorithm.dir
 
-build CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj: CXX_COMPILER__MyDataStructureAndAlgorithm_unscanned_Debug D$:/MyDataStructureAndAlgorithm/TestDemo/MyStackTest.cpp || cmake_object_order_depends_target_MyDataStructureAndAlgorithm
-  DEP_FILE = CMakeFiles\MyDataStructureAndAlgorithm.dir\TestDemo\MyStackTest.cpp.obj.d
+build CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyVectorTest.cpp.obj: CXX_COMPILER__MyDataStructureAndAlgorithm_unscanned_Debug D$:/MyDataStructureAndAlgorithm/TestDemo/MyVectorTest.cpp || cmake_object_order_depends_target_MyDataStructureAndAlgorithm
+  DEP_FILE = CMakeFiles\MyDataStructureAndAlgorithm.dir\TestDemo\MyVectorTest.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -ID:/MyDataStructureAndAlgorithm/Src
   OBJECT_DIR = CMakeFiles\MyDataStructureAndAlgorithm.dir
@@ -64,7 +64,7 @@ build CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj: C
 #############################################
 # Link the executable MyDataStructureAndAlgorithm.exe
 
-build MyDataStructureAndAlgorithm.exe: CXX_EXECUTABLE_LINKER__MyDataStructureAndAlgorithm_Debug CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyStackTest.cpp.obj
+build MyDataStructureAndAlgorithm.exe: CXX_EXECUTABLE_LINKER__MyDataStructureAndAlgorithm_Debug CMakeFiles/MyDataStructureAndAlgorithm.dir/TestDemo/MyVectorTest.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\MyDataStructureAndAlgorithm.dir

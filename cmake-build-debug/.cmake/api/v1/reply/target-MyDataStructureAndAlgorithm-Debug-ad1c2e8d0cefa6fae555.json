@@ -28,7 +28,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 12,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
@@ -112,7 +112,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "TestDemo/MyStackTest.cpp",
+			"path" : "TestDemo/MyVectorTest.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

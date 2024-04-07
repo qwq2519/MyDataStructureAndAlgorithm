@@ -65,6 +65,8 @@ namespace MyLinkedList {
     private:
         Pointer Get(int64_t index) const;
 
+        void Remove(Pointer p);
+
     public:
         void print() const;
 
@@ -231,6 +233,14 @@ namespace MyLinkedList {
         delete pNode;
         --size;
         return;
+    }
+
+    template<typename T>
+    void DoubleLinkedList<T>::Remove(typename DoubleLinkedList<T>::Pointer p) {
+        p->prev->next = p->next;
+        p->next->prev = p->prev;
+        delete p;
+        --size;
     }
 
     template<typename T>

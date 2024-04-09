@@ -25,6 +25,9 @@ namespace MyVector {
 
         Vector(const Vector<T> &rhs);
 
+        Vector(int64_t num,T value);
+
+
         Vector<T>& operator=(const Vector<T> &rhs);
 
         template<typename InputIterator>
@@ -47,6 +50,8 @@ namespace MyVector {
         void PopBack();
 
         void Erase(iterator it);
+
+        void Print()const;
     };
 }
 
@@ -71,6 +76,14 @@ namespace MyVector {
 
         std::copy(rhs.data, rhs.data + rhs.size, data);
     }
+    template<typename T>
+    Vector<T>::Vector(int64_t num,T value){
+        size=num;
+        capacity=num*2;
+        data=new value_type [capacity];
+        std::fill(data,data+size,value);
+    }
+
 
     template<typename T>
     Vector<T> &Vector<T>::operator=(const Vector<T> &rhs) {
@@ -173,6 +186,13 @@ namespace MyVector {
             data[i]=data[i+1];
         }
         --size;
+    }
+
+    template<typename T>
+    void Vector<T>::Print() const{
+        for(auto i{0};i<size;++i){
+            std::cout<<data[i]<<' ';
+        }std::cout<<std::flush;
     }
 }
 

@@ -13,7 +13,7 @@ include_directories(${CMAKE_SOURCE_DIR}/Src)
 add_executable(MyDataStructureAndAlgorithm
         #TestDemo/MyStackTest.cpp
         #TestDemo/MyQueueTest.cpp
-        #TestDemo/MyLinkedListTest.cpp
-        TestDemo/MyVectorTest.cpp
+        TestDemo/MyLinkedListTest.cpp
+        #TestDemo/MyVectorTest.cpp
         #TestDemo/MyLinkedListTest.cpp
 )

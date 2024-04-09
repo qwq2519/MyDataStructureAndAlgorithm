@@ -112,7 +112,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "TestDemo/MyVectorTest.cpp",
+			"path" : "TestDemo/MyLinkedListTest.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

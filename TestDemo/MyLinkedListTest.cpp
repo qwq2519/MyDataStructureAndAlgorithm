@@ -1,7 +1,7 @@
-#include "MyLinkedList.hpp"
+#include "ds/MyLinkedList.hpp"
 #include <iostream>
 #include <bits/stdc++.h>
-
+#include"ds/MyOrthogonalList.hpp"
 using namespace std;
 
 void test() {
@@ -49,7 +49,20 @@ void test2(){
 
 
 }
+
+void test3(){
+    MyOrthogonalList::OrthogonalList<int> t(4,4);
+    t.AddNode(3,4,4);
+    t.AddNode(1,4,5);
+    t.AddNode(2,2,-1);
+    t.AddNode(3,1,2);
+
+    t.Print();
+    cout<<endl;
+}
+
 int main() {
-    test();
+//    test();
+test3();
     return 0;
 }

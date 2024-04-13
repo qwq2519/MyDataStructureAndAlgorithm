@@ -5,6 +5,8 @@
 #include<cstdint>
 #include<algorithm>
 #include<iostream>
+#include<memory>
+#include<utility>
 
 namespace MyVector {
     template<typename T>
@@ -12,187 +14,184 @@ namespace MyVector {
     public:
         using value_type = T;
         using iterator = T *;
-        using const_iterator=const T*;
+        using constIterator = const T *;
     private:
-        value_type *data{nullptr};
-        uint64_t size{0};
-        uint64_t capacity{0};
+        iterator first{nullptr};
+        iterator last{nullptr};
+        iterator end{nullptr};
+
 
     public:
-        Vector();
+        Vector() = default;
 
-        ~Vector();
+        explicit Vector(const size_t size);
 
-        Vector(const Vector<T> &rhs);
+        Vector(const Vector &other);
 
-        Vector(int64_t num,T value);
+        Vector &operator=(const Vector &other);
 
+        Vector(Vector &&other) noexcept;
 
-        Vector<T>& operator=(const Vector<T> &rhs);
+        Vector &operator=(Vector &&other) noexcept;
 
-        template<typename InputIterator>
-        Vector(InputIterator first,InputIterator last);
+        ~Vector() noexcept;
 
     public:
-        value_type& operator[](uint64_t index) ;
+        T& operator[](const size_t index);
 
-        bool operator==(const Vector &rhs) const;
+        T& operator[](const size_t index) const;
+
     public:
-        iterator begin(){return data;}
-        iterator end(){return data+size;}
-        const_iterator begin() const{return data;}
-        const_iterator end() const{return data+size;}
+        size_t Size() const;
+
+        size_t Capacity() const;
+
+        void Clear();
+
+        void Resize(const size_t newSize);
+
+        void Reserve(const size_t newCapacity);
+
+        void ShrinkToFit();
+
     public:
-        void PushBack(value_type value);
+        const T& PushBack(value_type &&value);
 
-        void Insert(iterator it, value_type value);
+        const T& PushBack(const value_type &value);
 
-        void PopBack();
+    private:
+        void AllocateAndMove(const size_t newCapacity);
 
-        void Erase(iterator it);
+        size_t CalculateGrowth(const size_t newSize) const;
 
-        void Print()const;
+        void GrowIfNeeded(const size_t newSize);
+
+
     };
 }
 
 namespace MyVector {
-    template<typename T>
-    Vector<T>::Vector() {}
 
     template<typename T>
-    Vector<T>::~Vector() {
-        delete[]data;
-        data = NULL;
-        size = 0;
-        capacity = 0;
+    Vector<T>::Vector(const size_t size) {
+        first = new T[size]{};
+        end = last = first + size;
     }
 
-    //拷贝构造函数
     template<typename T>
-    Vector<T>::Vector(const Vector<T> &rhs) {
-        size = rhs.size;
-        capacity = rhs.capacity;
-        data = new value_type[capacity];
-
-        std::copy(rhs.data, rhs.data + rhs.size, data);
-    }
-    template<typename T>
-    Vector<T>::Vector(int64_t num,T value){
-        size=num;
-        capacity=num*2;
-        data=new value_type [capacity];
-        std::fill(data,data+size,value);
+    Vector<T>::Vector(const Vector &other) {
+        first = new T[other.Size()];
+        end = last = std::copy(other.first, other.last, first);
     }
 
-
     template<typename T>
-    Vector<T> &Vector<T>::operator=(const Vector<T> &rhs) {
-        if (*this == rhs) return *this;
-        size = rhs.size;
-        capacity = rhs.capacity;
+    typename Vector<T>::Vector& Vector<T>::operator=(const Vector &other) {
+        if (&other == this) return *this;
+        delete[]first;
 
-        delete[]data;
-
-        data = new value_type[rhs.capacity];
-        std::copy(rhs.data, rhs.data + rhs.size, data);
-
+        first = new T[other.Size()];
+        end = last = std::copy(other.first, other.last, first);
         return *this;
     }
 
     template<typename T>
-    Vector<T>::value_type& Vector<T>::operator[](uint64_t index)  {
-        if (index >= size) {
-            std::cerr << "Index Out Of Range" << std::endl;
+    Vector<T>::Vector(Vector &&other) noexcept {
+        first = std::exchange(other.first, nullptr);
+        last = std::exchange(other.last, nullptr);
+        end = std::exchange(other.end, nullptr);
+    }
+
+    template<typename T>
+    typename Vector<T>::Vector& Vector<T>::operator=(Vector &&other) noexcept {
+        delete []first;
+        first = std::exchange(other.first, nullptr);
+        last = std::exchange(other.last, nullptr);
+        end = std::exchange(other.end, nullptr);
+        return *this;
+    }
+
+
+    template<typename T>
+    Vector<T>::~Vector() noexcept {
+        delete[]first;
+    }
+
+    template<typename T>
+    T& Vector<T>::operator[](const size_t index) {
+        return first[index];
+    }
+
+    template<typename T>
+    T& Vector<T>::operator[](const size_t index) const {
+        return first[index];
+    }
+
+    template<typename T>
+    void Vector<T>::AllocateAndMove(const size_t newCapacity) {
+        iterator newFirst = new T[newCapacity];
+        last = std::move(first, last, newFirst);
+        delete first;
+        first = newFirst;
+        end = first + newCapacity;
+    }
+
+    template<typename T>
+    size_t Vector<T>::CalculateGrowth(const size_t newSize) const {
+        const size_t grow = Capacity() * 1.5;
+        return std::max(grow, newSize);
+    }
+
+    template<typename T>
+    void Vector<T>::GrowIfNeeded(const size_t newSize) {
+        if (newSize <= Capacity()) return;
+        AllocateAndMove(CalculateGrowth(newSize));
+    }
+
+    template<typename T>
+    size_t Vector<T>::Size() const {
+        return std::distance(first, last);
+    }
+
+    template<typename T>
+    size_t Vector<T>::Capacity() const {
+        return std::distance(first, end);
+    }
+
+    template<typename T>
+    const T& Vector<T>::PushBack(value_type &&value) {
+        GrowIfNeeded(Size() + 1);
+        return *last++ = std::move(value);
+    }
+
+    template<typename T>
+    const T& Vector<T>::PushBack(const value_type &value) {
+        GrowIfNeeded(Size() + 1);
+        return *last++ = value;
+    }
+
+    template<typename T>
+    void Vector<T>::Clear() {
+        last = first;
+    }
+
+    template<typename T>
+    void Vector<T>::Resize(const size_t newSize) {
+        Reserve(newSize);
+        last = first + newSize;
+    }
+
+    template<typename T>
+    void Vector<T>::Reserve(const size_t newCapacity) {
+        if (newCapacity > Capacity()) {
+            AllocateAndMove(newCapacity);
         }
-        return data[index];
     }
 
     template<typename T>
-    bool Vector<T>::operator==(const Vector<T> &rhs) const {
-        if (size != rhs.size) return false;
-        for (int64_t i{0}; i < size; ++i) {
-            if (data[i] != rhs.data[i]) {
-                return false;
-            }
-        }//后面用foreach改掉
-        return true;
-    }
-
-    template<typename T>
-    void Vector<T>::PushBack(Vector<T>::value_type value) {
-        if (!capacity) {
-            capacity = 1;
-            data = new value_type[1];
-        } else if (size + 1 > capacity) {
-            capacity *= 2;
-
-            value_type *temp = new value_type[capacity];
-            std::copy(data, data + size, temp);
-            delete[]data;
-
-            data = new value_type[capacity];
-            std::copy(temp, temp + size, data);
-
-            delete[]temp;
+    void Vector<T>::ShrinkToFit() {
+        if (Capacity() != Size()) {
+            AllocateAndMove(Size());
         }
-        data[size] = value;
-        ++size;
-    }
-
-    template<typename T>
-    void Vector<T>::Insert(Vector<T>::iterator it, Vector<T>::value_type value) {
-        int64_t index = std::distance(it, data);
-        if (!capacity) {
-            capacity = 1;
-            data = new value_type[1];
-            data[0] = value;
-        } else if (size + 1 > capacity) {
-            capacity *= 2;
-            value_type *temp = new value_type[capacity];
-            for (auto i{0}; i < index; ++i) {
-                temp[i] = data[i];
-            }
-            temp[index] = value;
-            for (auto i{index}; i < size; ++i) {
-                temp[i + 1] = data[i];
-            }
-
-            ++size;
-            delete[]data;
-            data = new value_type[capacity];
-            std::copy(temp, temp + size, data);
-            delete[]temp;
-        } else {
-            for (auto i{size - 1}; i >= index; --i) {
-                data[i + 1] = data[i];
-            }
-            data[index] = value;
-
-            ++size;
-        }
-    }
-
-    template<typename T>
-    void Vector<T>::PopBack() {
-        if (!size) {
-            std::cerr << "Vector is empty!";
-        }else --size;
-    }
-
-    template<typename T>
-    void Vector<T>::Erase(Vector<T>::iterator it) {
-        int64_t index=std::distance(it,data);
-        for(auto i{index};i<size-1;++i){
-            data[i]=data[i+1];
-        }
-        --size;
-    }
-
-    template<typename T>
-    void Vector<T>::Print() const{
-        for(auto i{0};i<size;++i){
-            std::cout<<data[i]<<' ';
-        }std::cout<<std::flush;
     }
 }
 

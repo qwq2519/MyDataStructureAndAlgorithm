@@ -109,7 +109,6 @@ namespace MyTree {
             else{
                 return 1+std::max(GetHeightDfs(Left(index)),GetHeightDfs(Right(index)));
             }
-        }
     };
 }
 

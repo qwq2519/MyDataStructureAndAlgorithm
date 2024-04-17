@@ -4,7 +4,8 @@ project(MyDataStructureAndAlgorithm CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 # 添加头文件目录
-include_directories(${CMAKE_SOURCE_DIR}/Src)
+include_directories(${CMAKE_SOURCE_DIR}/Src/ds)
+include_directories(${CMAKE_SOURCE_DIR}/Src/alg)
 
 
 
@@ -13,7 +14,8 @@ include_directories(${CMAKE_SOURCE_DIR}/Src)
 add_executable(MyDataStructureAndAlgorithm
         #TestDemo/MyStackTest.cpp
         #TestDemo/MyQueueTest.cpp
-        TestDemo/MyLinkedListTest.cpp
+        #TestDemo/MyLinkedListTest.cpp
+        TestDemo/Test.cpp
         #TestDemo/MyVectorTest.cpp
         #TestDemo/MyLinkedListTest.cpp
 )

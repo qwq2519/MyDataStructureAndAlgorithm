@@ -8,25 +8,30 @@
 #include<vector>
 #include<iostream>
 #include<algorithm>
-#include<memory>
+#include<string>
 #include<stack>
 #include<queue>
 
 namespace MyTree {
     template<typename T>
     class BinaryTree {
+    public:
         using value_type = T;
         struct Node {
             value_type data{};
-            std::shared_ptr<Node> left{nullptr};
-            std::shared_ptr<Node> right{nullptr};
+            Node *left{nullptr};
+            Node *right{nullptr};
         };
-        using iterator = std::shared_ptr<Node>;
+        using iterator = Node *;
     public:
-        iterator root;
+        iterator root{nullptr};
+        ~BinaryTree();
+    public:
+        void PreOrderBuild(iterator &p, std::string &str);
+        void destory(iterator p);
     public:
 
-        void PreOrderTraversalRecursion(const iterator p, std::vector<Node> &result) const;
+        void PreOrderTraversalRecursion(const iterator p, std::vector<T> &result) const;
 
         void PreOrderTraversalIteration(const iterator p, std::vector<Node> &result) const;
 
@@ -103,21 +108,54 @@ namespace MyTree {
         }
 
         size_t GetHeightDfs(int index) {
-            if (!GetVal(index)){
+            if (!GetVal(index)) {
                 return 0;
+            } else {
+                size_t l = GetHeightDfs(Left(index));
+                size_t r = GetHeightDfs(Right(index));
+                return 1 + std::max(l, r);
             }
-            else{
-                return 1+std::max(GetHeightDfs(Left(index)),GetHeightDfs(Right(index)));
-            }
+        }
     };
 }
-
 namespace MyTree {
 
     template<typename T>
-    void BinaryTree<T>::PreOrderTraversalRecursion(const iterator p, std::vector<Node> &result) const {
+    BinaryTree<T>::~BinaryTree(){
+        destory(root);
+    }
+    template<typename T>
+    void BinaryTree<T>::destory(iterator p) {
+        if(p!= nullptr){
+            destory(p->left);
+            destory(p->right);
+            delete p;
+        }
+        p= nullptr;
+    }
+
+
+    template<typename T>
+    void BinaryTree<T>::PreOrderBuild(iterator &p, std::string &str) {
+        if (str.empty()) {
+            p = nullptr;
+            return;
+        }
+        char ch = *str.begin();
+        str.erase(str.begin());
+        if (ch == '#') {
+            p = nullptr;
+            return;
+        }
+        p = new Node{ch, nullptr, nullptr};
+        PreOrderBuild(p->left, str);
+        PreOrderBuild(p->right, str);
+    }
+
+    template<typename T>
+    void BinaryTree<T>::PreOrderTraversalRecursion(const iterator p, std::vector<T> &result) const {
         if (p == nullptr) return;
-        result.push_back(p->val);
+        result.push_back(p->data);
         PreOrderTraversalRecursion(p->left, result);
         PreOrderTraversalRecursion(p->right, result);
     }

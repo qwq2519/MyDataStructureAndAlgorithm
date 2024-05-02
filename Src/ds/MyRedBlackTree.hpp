@@ -6,9 +6,9 @@
  1.平衡二叉搜索树，中序遍历单调不减
  2.节点是红色/黑色
  3.根节点是黑色
- 4.每个叶子结点都是黑色空节点
- 5.不存在连续的两个红节点
- 6.根节点到每个叶子结点的路径上包含的黑色节点数相同(又称为黑高度)
+ 5.每个叶子结点都是黑色空节点
+ 6.不存在连续的两个红节点,红节点的儿子一定是黑节点
+ 7.根节点到每个叶子结点的路径上包含的黑色节点数相同(又称为黑高度)
  */
 #include<cstdint>
 #include<optional>
@@ -252,7 +252,7 @@ namespace MyRBTree {
 
             Node *uncle = p->father->brother();//叔节点
             Node *grdfa = p->father->father;//祖父节点
-            if (uncle != nullptr && uncle->color==Red) {//父亲和叔叔都是红色
+            if (uncle != nullptr && uncle->color==Red) {//父亲和叔叔都是红色。可以确定祖父节点一定是黑色。接下来保证不改变黑高度的情况下递归维护祖父节点即可
                 grdfa->color = Red;
                 uncle->color = Black;
                 fa->color = Black;
@@ -261,40 +261,45 @@ namespace MyRBTree {
                 if (fa->IsleftChild()) {
                     if (p->IsleftChild()) {
                         fa->father = grdfa->father;
+
+                        //右旋
                         if (grdfa == root) root = fa;
-                        else if (grdfa->father->leftChild == grdfa) {
+                        else if (grdfa->IsleftChild()) {
                             grdfa->father->leftChild = fa;
                         } else {
                             grdfa->father->rightChild = fa;
                         }
+
                         connect34(fa, p, grdfa, p->leftChild, p->rightChild, fa->rightChild, uncle);
                         fa->color = Black;
                         grdfa->color = Red;
                     } else {
                         p->father = grdfa->father;
                         if (grdfa == root) root = p;
-                        else if (grdfa->father->leftChild == grdfa) grdfa->father->leftChild = p;
+                        else if (grdfa->IsleftChild() ) grdfa->father->leftChild = p;
                         else grdfa->father->rightChild = p;
                         connect34(p, fa, grdfa, fa->leftChild, p->leftChild, p->rightChild, uncle);
                         p->color = Black;
                         grdfa->color = Red;
                     }
                 } else {
-                    if (p->IsleftChild()) {
-                        p->father = grdfa->father;
-                        if (grdfa == root) root = p;
-                        else if (grdfa->father->leftChild == grdfa) grdfa->father->leftChild = p;
-                        else grdfa->father->rightChild = p;
-                        connect34(p, grdfa, fa, uncle, p->leftChild, p->rightChild, fa->rightChild);
-                        p->color = Black;
-                        grdfa->color = Red;
-                    } else {
+                    if (p->IsrightChild()) {
                         fa->father = grdfa->father;
                         if (grdfa == root) root = fa;
-                        else if (grdfa->father->leftChild == grdfa) grdfa->father->leftChild = fa;
+                        else if (grdfa->IsleftChild()) grdfa->father->leftChild = fa;
                         else grdfa->father->rightChild = fa;
                         connect34(fa, grdfa, p, uncle, fa->leftChild, p->leftChild, p->rightChild);
                         fa->color = Black;
+                        grdfa->color = Red;
+
+                    } else {
+                        p->father = grdfa->father;
+                        if (grdfa == root) root = p;
+                        else if (grdfa->IsleftChild()) grdfa->father->leftChild = p;
+                        else grdfa->father->rightChild = p;
+
+                        connect34(p, grdfa, fa, uncle, p->leftChild, p->rightChild, fa->rightChild);
+                        p->color = Black;
                         grdfa->color = Red;
                     }
                 }
@@ -303,7 +308,6 @@ namespace MyRBTree {
         }
     }
 
-    //统一重平衡
     template<typename T>
     void RBTree<T>::connect34(Node *nroot, Node *nleftChild, Node *nrightChild,
                               Node *ntree1, Node *ntree2, Node *ntree3, Node *ntree4) {
@@ -396,19 +400,19 @@ namespace MyRBTree {
                 node_suc = p->rightChild;
             } else if (!(p->rightChild)) {//右子树不存在
                 node_suc = p->leftChild;
-            } else {//两个子树均存在
+            } else {//两个子树均存在,需要找到前驱或者后继来替换,仅替换数据。
                 node_suc = p->Succ();
             }
             --(p->size);
             p->val = node_suc->val;
             p = node_suc;
         }
-
-        if (p->color == Black) {
+        //p已经是叶子结点了，红叶子结点直接删除即可
+        if (p->color == Black) {//黑叶子结点不能直接删除，要维护
             --(p->size);
             SolveDoubleBlack(p);
         }
-        if (p == root) {
+        if (p == root) {//根节点直接删除
             root = nullptr;
             delete p;
             return true;
@@ -422,97 +426,97 @@ namespace MyRBTree {
     }
 
     template<typename T>
-    void RBTree<T>::SolveDoubleBlack(Node *nn) {
-        while (nn != root) {
-            Node *pftr = nn->father;
-            Node *bthr = nn->brother();
-            if (bthr->color) {//兄弟为红色
+    void RBTree<T>::SolveDoubleBlack(Node *p) {
+        while (p != root) {
+            Node *fa = p->father;
+            Node *bthr = p->brother();
+            if (bthr->color==Red) {//兄弟为红色,则父节点和侄节点必为黑色
                 bthr->color = Black;
-                pftr->color = Red;
-                if (root == pftr) root = bthr;
-                if (pftr->father) {
-                    if (pftr->father->leftChild == pftr)
-                        pftr->father->leftChild = bthr;
+                fa->color = Red;
+                if (root == fa) root = bthr;
+                if (fa->father) {
+                    if (fa->IsleftChild())
+                        fa->father->leftChild = bthr;
                     else
-                        pftr->father->rightChild = bthr;
+                        fa->father->rightChild = bthr;
                 }
-                bthr->father = pftr->father;
-                if (nn->IsleftChild()) {
-                    connect34(bthr, pftr, bthr->rightChild, nn, bthr->leftChild, bthr->rightChild->leftChild,
+                bthr->father = fa->father;
+                if (p->IsleftChild()) {
+                    connect34(bthr, fa, bthr->rightChild, p, bthr->leftChild, bthr->rightChild->leftChild,
                               bthr->rightChild->rightChild);
                 } else {
-                    connect34(bthr, bthr->leftChild, pftr, bthr->leftChild->leftChild, bthr->leftChild->rightChild,
-                              bthr->rightChild, nn);
+                    connect34(bthr, bthr->leftChild, fa, bthr->leftChild->leftChild, bthr->leftChild->rightChild,
+                              bthr->rightChild, p);
                 }
-                bthr = nn->brother();
-                pftr = nn->father;
+                bthr = p->brother();
+                fa = p->father;
             }
-            if (bthr->leftChild && bthr->leftChild->color) {    ////BB-3
-                bool oldcolor = pftr->color;
-                pftr->color = false;
-                if (pftr->leftChild == nn) {
-                    if (pftr->father) {
-                        if (pftr->father->leftChild == pftr)
-                            pftr->father->leftChild = bthr->leftChild;
+            if (bthr->leftChild && bthr->leftChild->color==Red) {
+                bool oldcolor = fa->color;
+                fa->color = false;
+                if (fa->leftChild == p) {
+                    if (fa->father) {
+                        if (fa->IsleftChild())
+                            fa->father->leftChild = bthr->leftChild;
                         else
-                            pftr->father->rightChild = bthr->leftChild;
+                            fa->father->rightChild = bthr->leftChild;
                     }
-                    bthr->leftChild->father = pftr->father;
-                    if (root == pftr) root = bthr->leftChild;
-                    connect34(bthr->leftChild, pftr, bthr, pftr->leftChild, bthr->leftChild->leftChild,
+                    bthr->leftChild->father = fa->father;
+                    if (root == fa) root = bthr->leftChild;
+                    connect34(bthr->leftChild, fa, bthr, fa->leftChild, bthr->leftChild->leftChild,
                               bthr->leftChild->rightChild, bthr->rightChild);
                 } else {
                     bthr->leftChild->color = false;
-                    if (pftr->father) {
-                        if (pftr->father->leftChild == pftr)
-                            pftr->father->leftChild = bthr;
+                    if (fa->father) {
+                        if (fa->father->leftChild == fa)
+                            fa->father->leftChild = bthr;
                         else
-                            pftr->father->rightChild = bthr;
+                            fa->father->rightChild = bthr;
                     }
-                    bthr->father = pftr->father;
-                    if (root == pftr) root = bthr;
-                    connect34(bthr, bthr->leftChild, pftr, bthr->leftChild->leftChild, bthr->leftChild->rightChild,
-                              bthr->rightChild, pftr->rightChild);
+                    bthr->father = fa->father;
+                    if (root == fa) root = bthr;
+                    connect34(bthr, bthr->leftChild, fa, bthr->leftChild->leftChild, bthr->leftChild->rightChild,
+                              bthr->rightChild, fa->rightChild);
                 }
-                pftr->father->color = oldcolor;
+                fa->father->color = oldcolor;
                 return;
             } else if (bthr->rightChild && bthr->rightChild->color) {    //兄弟为黑色且有哄儿子
-                bool oldcolor = pftr->color;
-                pftr->color = false;
-                if (pftr->leftChild == nn) {
+                bool oldcolor = fa->color;
+                fa->color = false;
+                if (fa->leftChild == p) {
                     bthr->rightChild->color = false;
-                    if (pftr->father) {
-                        if (pftr->father->leftChild == pftr)
-                            pftr->father->leftChild = bthr;
+                    if (fa->father) {
+                        if (fa->IsleftChild())
+                            fa->father->leftChild = bthr;
                         else
-                            pftr->father->rightChild = bthr;
+                            fa->father->rightChild = bthr;
                     }
-                    bthr->father = pftr->father;
-                    if (root == pftr) root = bthr;
-                    connect34(bthr, pftr, bthr->rightChild, pftr->leftChild, bthr->leftChild,
+                    bthr->father = fa->father;
+                    if (root == fa) root = bthr;
+                    connect34(bthr, fa, bthr->rightChild, fa->leftChild, bthr->leftChild,
                               bthr->rightChild->leftChild, bthr->rightChild->rightChild);
                 } else {
-                    if (pftr->father) {
-                        if (pftr->father->leftChild == pftr)
-                            pftr->father->leftChild = bthr->rightChild;
+                    if (fa->father) {
+                        if (fa->IsleftChild())
+                            fa->father->leftChild = bthr->rightChild;
                         else
-                            pftr->father->rightChild = bthr->rightChild;
+                            fa->father->rightChild = bthr->rightChild;
                     }
-                    bthr->rightChild->father = pftr->father;
-                    if (root == pftr) root = bthr->rightChild;
-                    connect34(bthr->rightChild, bthr, pftr, bthr->leftChild, bthr->rightChild->leftChild,
-                              bthr->rightChild->rightChild, pftr->rightChild);
+                    bthr->rightChild->father = fa->father;
+                    if (root == fa) root = bthr->rightChild;
+                    connect34(bthr->rightChild, bthr, fa, bthr->leftChild, bthr->rightChild->leftChild,
+                              bthr->rightChild->rightChild, fa->rightChild);
                 }
-                pftr->father->color = oldcolor;
+                fa->father->color = oldcolor;
                 return;
             }
-            if (pftr->color) {                    //兄弟为黑色且没有红儿子，父亲为红色
-                pftr->color = Black;
+            if (fa->color) {                    //兄弟为黑色且没有红儿子，父亲为红色
+                fa->color = Black;
                 bthr->color = Red;
                 return;
             } else {                        //兄弟父亲都是黑色，且兄弟没有红儿子
                 bthr->color = Red;
-                nn = pftr;
+                p = fa;
             }
         }
     }

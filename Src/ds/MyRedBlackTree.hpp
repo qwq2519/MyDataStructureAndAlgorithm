@@ -242,7 +242,7 @@ namespace MyRBTree {
     template<typename T>
     void RBTree<T>::SolveDoubleRed(Node *p) {//当前节点是红色的，注意
 
-        while ((!(p->father)) || p->father==Red) {//父节点也是红色的，双红不行
+        while ((!(p->father)) || p->father->color==Red) {//父节点也是红色的，双红不行
             if (p == root) {//当前节点为根节点，染黑即可
                 root->color = Black;
                 return;

@@ -240,18 +240,19 @@ namespace MyRBTree {
     }
 
     template<typename T>
-    void RBTree<T>::SolveDoubleRed(Node *p) {
-        while ((!(p->father)) || p->father->color) {
-            if (p == root) {
+    void RBTree<T>::SolveDoubleRed(Node *p) {//当前节点是红色的，注意
+
+        while ((!(p->father)) || p->father==Red) {//父节点也是红色的，双红不行
+            if (p == root) {//当前节点为根节点，染黑即可
                 root->color = Black;
                 return;
             }
             Node *fa = p->father;
-            if (!(fa->color)) return;//不是双红
+            if (fa->color==Black) return;//当前节点的父节点是黑色
 
-            Node *uncle = p->father->brother();
-            Node *grdfa = p->father->father;
-            if (uncle != nullptr && uncle->color) {//父亲和叔叔都是红色
+            Node *uncle = p->father->brother();//叔节点
+            Node *grdfa = p->father->father;//祖父节点
+            if (uncle != nullptr && uncle->color==Red) {//父亲和叔叔都是红色
                 grdfa->color = Red;
                 uncle->color = Black;
                 fa->color = Black;
